@@ -13,7 +13,7 @@ If the default behaviour does not suit your needs, it can be modified, or overri
   Any file uploaded to this bucket will be automatically loaded into a BigQuery table
   
 * Download the default mapping file [`mappings/000_default_mappings.json`](mappings/000_default_mappings.json) and edit the `_global_config` mapping configuration to replace the `projectId` property to match yours
-   ```json
+   ```js
    // mappings/000_default_mappings.json
    [
      {
@@ -71,7 +71,7 @@ The configuration for this job results from the combination of all mappings matc
 A mapping file is a list of mapping configurations.
 
 A mapping configuration is defined as follows:
-```json
+```js
 {
   /**
    *A unique id identifying the mapping configuration
@@ -115,7 +115,7 @@ Named capturing groups are available as variables for replacement inside the val
 >[
 >   {
 >      "id": "export_{table}_{yyyyMMdd}.csv",
->      "match": "\/export_(?<TABLE>.*)_\\d{8}\.csv$",
+>      "match": "\\/export_(?<TABLE>.*)_\\d{8}\\.csv$",
 >      "configuration.load.destinationTable.tableId": "{{{TABLE}}}",
 >      "configuration.load.writeDisposition":"WRITE_TRUNCATE"
 >   }
