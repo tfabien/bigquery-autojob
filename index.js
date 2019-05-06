@@ -18,7 +18,7 @@ const mappingsDir = "mappings/"
 // Exported functions
 // ######################################################
 
-exports.loadFile = async (data, context) => {
+exports['bigquery-autoload'] = async (data, context) => {
     const file = data;
     console.log("Found new file: gs://" + file.bucket + "/" + file.name);
   
