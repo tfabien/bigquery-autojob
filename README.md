@@ -38,7 +38,7 @@ If the default behaviour does not suit your needs, it can be modified, or overri
                --runtime "nodejs10"
   ```
   
-  ### Loading data
+### Loading data
   
 * Upload the [samples/cities.csv](samples/cities.csv) file to the `bq-autoload` bucket
   ```bash
@@ -175,10 +175,10 @@ Depending on the variables you want to use, you may also need to alter the `matc
 > The `gs://bq-autoload/Public/Cities/export_cities_2019-05-06.csv` will be loaded into the `Public.Cities` table
 > ```json
 > {
->   "id":"_table_naming",
->   "match":"^(?<FILE_URI>gs\\:\\/\\/[^\\/]+(?<DATASET_ID>\\/[^\\/]+)\\/(?<TABLE_ID>[^\\/]+)\\/.*)$",
->   "configuration.load.destinationTable.datasetId":"{{{DATASET_ID}}}"
->   "configuration.load.destinationTable.tableId":"{{{TABLE_ID}}}"
+>   "id": "_table_naming",
+>   "match": "^gs\\:\\/\\/[^\\/]+(?<DATASET_ID>\\/[^\\/]+)\\/(?<TABLE_ID>[^\\/]+)\\/.*$",
+>   "configuration.load.destinationTable.datasetId": "{{{DATASET_ID}}}",
+>   "configuration.load.destinationTable.tableId": "{{{TABLE_ID}}}"
 >}
 >```
 ### `_format_{csv|json|avro|...}`
