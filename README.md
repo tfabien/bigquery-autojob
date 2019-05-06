@@ -9,11 +9,11 @@ It features a **_convention over configuration_** approches, the table name is a
 > **How it works:**
 > * Upload a `cities_20190506.csv` file to the GCS bucket
 >
->   **->** A `cities` BigQuery table will automatically be created and populated with data from the CSV :+1:
+>   **->** A `Staging.cities` BigQuery table will automatically be created and populated with data from the CSV :+1:
 >
 > * Upload a `cities_20190507.csv` file
 >
->   **->**  Data from the new file will be appended to the `cities` table
+>   **->**  Data from the new file will be appended to the `Staging.cities` table
 
 If the default behaviour does not suit your needs, it can be modified for all or certain files through mapping files and custom metadata.
 
