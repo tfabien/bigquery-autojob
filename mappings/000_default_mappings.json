@@ -1,0 +1,39 @@
+[
+   {
+      "id": "_global_config",
+	  "match": ".*",
+	  "configuration.load.destinationTable.projectId":"__REPLACE_WITH_YOUR_PROJECT_ID__",
+	  "configuration.load.destinationTable.datasetId":"Staging",
+      "configuration.load.writeDisposition":"WRITE_APPEND"	  
+   },
+   {
+	  "id": "_source_uri",
+	  "match": "(?<FILE_URI>.*)",
+	  "configuration.load.sourceUris[0]":"{{{FILE_URI}}}"
+   },
+   {
+      "id": "_table_naming",
+      "match":"^gs\\:\\/\\/(?<FILE_BUCKET>[^\\/]+)(?:\\/(?<FILE_SUBDIR>.*))?\\/(?<FILE_NAME>.*?)(?:_(?<FILE_DATE>[\\d\\-\\_]+)*)?(?:\\.(?<FILE_EXTENSION>.*))?$",
+      "configuration.load.destinationTable.tableId":"{{{FILE_NAME}}}"
+   },
+   {
+      "id":"_format_csv",
+      "match":".+\\.csv$",
+      "configuration.load.sourceFormat":"CSV",
+      "configuration.load.autodetect":"True",
+      "configuration.load.skipLeadingRows":"1",
+      "configuration.load.ignoreUnknownValues":"True"
+   },
+   {
+      "id":"_format_json",
+      "match":".+\\.js(?:on)?$",
+      "configuration.load.sourceFormat":"NEWLINE_DELIMITED_JSON",
+      "configuration.load.ignoreUnknownValues":"True"
+   },
+   {
+      "id":"_format_avro",
+      "match":".+\\.avro$",
+      "configuration.load.sourceFormat":"AVRO",
+      "configuration.load.useAvroLogicalTypes":"True"
+   }
+]

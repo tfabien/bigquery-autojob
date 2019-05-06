@@ -1,0 +1,10 @@
+{
+  "name": "bq-autoload",
+  "version": "0.0.1",
+   "dependencies": {
+    "@google-cloud/bigquery": "3.0.0",
+    "@google-cloud/storage": "2.5.0",
+    "dot-object": "1.7.1",
+    "mustache": "3.0.1"
+  }
+}
