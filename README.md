@@ -20,8 +20,7 @@ If the default behaviour does not suit your needs, it can be modified, or overri
         "id":"_global_config",
 	    "configuration.load.destinationTable.projectId":"__REPLACE_WITH_YOUR_PROJECT_ID__",
         // ...
-     },
-     // ...
+     }
    ]
   ```
   
