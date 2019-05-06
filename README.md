@@ -5,37 +5,50 @@
 A Google Cloud Function providing a **simple and configurable** way to automatically load data  from GCS files into Big Query tables.
 
 It features a **_convention over configuration_** approches, the table name is automatically derived from the file's name, ignoring date and timestamp suffix.
-If the default behaviour does not suit your needs, it can be modified, or overriden for certain files through mapping files or custom metadata.
+
+> **How it works:**
+> * Upload a `cities_20190506.csv` file to the GCS bucket
+    -> A `cities` BigQuery table will automatically be created and populated with data from the CSV
+> * Upload a `cities_20190507.csv` file
+    ->  Data from the new file will be appended to the `cities`table
+
+If the default behaviour does not suit your needs, it can be modified for all or certain files through mapping files and custom metadata.
 
 # Quickstart
 ### First-time configuration
+* Clone this repository to your local  filesystem
+  ```bash
+  $> git clone "https://github.com/tfabien/bigquery-autoload/" && cd "bigquery-autoload" 
+  ``` 
+
 * Create a new `bq-autoload` Google Cloud Storage bucket
-  Any file uploaded to this bucket will be automatically loaded into a BigQuery table
+  ```bash
+  $> gsutil mb -c regional "gs://bq-autoload"
+  ```
   
-* Download the default mapping file [`mappings/000_default_mappings.json`](mappings/000_default_mappings.json) and edit the `_global_config` mapping configuration to replace the `projectId` property to match yours
+* Edit the default mapping file [`mappings/000_default_mappings.json`](mappings/000_default_mappings.json) and alter the `_global_config` mapping configuration to replace the `projectId` property to match yours
+   ```bash
+   $> cat ./mappings/000_default_mappings.json 
+   ```
    ```js
-   // mappings/000_default_mappings.json
    [
      {
         "id":"_global_config",
 	    "configuration.load.destinationTable.projectId":"__REPLACE_WITH_YOUR_PROJECT_ID__",
         // ...
-     }
+     },
+     // ...
    ]
   ```
   
-* Upload the modified file to the gcs bucket as `gs://bq-autoload/mappings/000_default_mappings.json`
+* Upload the mapping files to the gcs bucket
   ```bash
-  $> gsutil cp "mappings/000_default_mappings.json" \
-               "gs://bq-autoload/mappings/000_default_mappings.json"
+  $> gsutil cp -r "./mappings/" "gs://bq-autoload/mappings/"
   ```
  
 * Deploy a cloud function triggered by changes on this GCS bucket
   ```bash
-  $> gcloud functions deploy "bigquery-autoload" \
-               --trigger-bucket "bq-autoload"
-               --source "https://github.com/tfabien/bigquery-autoload" \
-               --runtime "nodejs10"
+  $> gcloud functions deploy "bigquery-autoload" --trigger-bucket "bq-autoload" --runtime "nodejs10"
   ```
   
 ### Loading data
