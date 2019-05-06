@@ -77,7 +77,8 @@ var getJobConfigurationFromMappings = (mappings, file) => {
             // Replace variables in mapping template
             var mappingConfiguration = dot.dot(mapping.configuration);
             for (j in mappingConfiguration) {
-                mappingConfiguration[j] = mustache.render(mappingConfiguration[j], mappingVariables);
+                try { mappingConfiguration[j] = mustache.render(mappingConfiguration[j], mappingVariables); }
+                catch { /* Ignore*/ }
             }
             // Merge to the resulting configuration
             result = extend(true, result, dot.object(mappingConfiguration));
