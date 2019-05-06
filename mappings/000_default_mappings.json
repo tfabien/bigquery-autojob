@@ -1,15 +1,15 @@
 [
    {
       "id": "_global_config",
-	  "match": ".*",
-	  "configuration.load.destinationTable.projectId":"__REPLACE_WITH_YOUR_PROJECT_ID__",
-	  "configuration.load.destinationTable.datasetId":"Staging",
+      "match": ".*",
+      "configuration.load.destinationTable.projectId":"__REPLACE_WITH_YOUR_PROJECT_ID__",
+      "configuration.load.destinationTable.datasetId":"Staging",
       "configuration.load.writeDisposition":"WRITE_APPEND"	  
    },
    {
-	  "id": "_source_uri",
-	  "match": "(?<FILE_URI>.*)",
-	  "configuration.load.sourceUris[0]":"{{{FILE_URI}}}"
+      "id": "_source_uri",
+      "match": "(?<FILE_URI>.*)",
+      "configuration.load.sourceUris[0]":"{{{FILE_URI}}}"
    },
    {
       "id": "_table_naming",
