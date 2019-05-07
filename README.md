@@ -4,18 +4,14 @@
 
 A Google Cloud Function providing a **simple and configurable** way to automatically load data  from GCS files into Big Query tables.
 
-It features a **_convention over configuration_** approches, the table name is automatically derived from the file's name, ignoring date and timestamp suffix.
+It features a **_convention over configuration_** approches, and provides a sensible default configuration for common file formats _(CSV, JSON, AVRO, ORC, Parquet)_
+* The table name is automatically derived from the file's name, minus the extension, and date/timestamp suffix if any.
+* CSV and JSON files are loaded with autodetect feature enabled
+* Avro logical types are used
+* New data is appended to the table
+* ...
 
-> **How it works:**
-> * Upload a **`cities_20190506.csv`** file to the GCS bucket
->
->   **->** A **`Staging.cities`** BigQuery table will automatically be created and populated with data from the CSV :+1:
->
-> * Upload a **`cities_20190507.csv`** file
->
->   **->**  Data from the new file will be appended to the **`Staging.cities`** table
-
-If the default behaviour does not suit your needs, it can be modified for all or certain files through mapping files and custom metadata.
+If the default behaviour does not suit your needs, it can be modified for all or certain files through mapping files or custom metadata.
 
 # Quickstart
 ### First-time configuration
@@ -27,58 +23,202 @@ If the default behaviour does not suit your needs, it can be modified for all or
 * Clone this repository to your local  filesystem and upload the mapping files to the gcs bucket
   ```bash
   $> git clone "https://github.com/tfabien/bigquery-autoload/" && \
-     cd "bigquery-autoload" && \
-     gsutil cp -r "./mappings" "gs://bq-autoload/"
+       cd "bigquery-autoload" && \
+       gsutil cp -r "./mappings" "gs://bq-autoload/"
   ```
  
-* Deploy as a cloud function triggered by changes on this GCS bucket (**do not forget to replace the project id**)
+* Deploy as a cloud function triggered by changes on this GCS bucket _(**do not forget to replace the project id**)_
   ```bash
   $> gcloud functions deploy "bigquery-autoload" \
                       --trigger-bucket "bq-autoload" \
-                      --set-env-vars "PROJECT_ID={{REPLACE_WITH_YOUR_OWN_GCP_PROJECT_ID}}" \
+                      --set-env-vars "PROJECT_ID=REPLACE_WITH_YOUR_GCP_PROJECT_ID" \
                       --runtime "nodejs10" \
                       --memory "128MB"
   ```
   
-### Loading data
-  
-* Upload the [samples/cities.csv](samples/cities.csv) file to the `bq-autoload` bucket
-  ```bash
-  $> gsutil cp "samples/cities_20190506.csv" "gs://bq-autoload/"
-  ```
-  
-* A few seconds later, the corresponding `cities` BigQuery table has been created with data from the sample CSV file
-  ```bash
-  $> bq query "SELECT * FROM Staging.cities LIMIT 10"
-  Waiting on bqjob_r7d361af5_0000016a8c759436_1 ... (0s) Current status: DONE
-  +------+------+------+-------+------+------+------+------+-----------------+-------+
-  | LatD | LatM | LatS |  NS   | LonD | LonM | LonS |  EW  |      City       | State |
-  +------+------+------+-------+------+------+------+------+-----------------+-------+
-  |   39 |   45 |    0 | false |   75 |   33 |    0 | W    | Wilmington      |  DE   |
-  |   41 |   15 |    0 | false |   77 |    0 |    0 | W    | Williamsport    |  PA   |
-  |   26 |   43 |   11 | false |   80 |    3 |    0 | W    | West Palm Beach |  FL   |
-  |   36 |   40 |   11 | false |  121 |   39 |    0 | W    | Salinas         |  CA   |
-  |   50 |   25 |   11 | false |  104 |   39 |    0 | W    | Regina          |  SA   |
-  |   42 |   16 |   12 | false |   71 |   48 |    0 | W    | Worcester       |  MA   |
-  |   29 |   25 |   12 | false |   98 |   30 |    0 | W    | San Antonio     |  TX   |
-  |   35 |   56 |   23 | false |   77 |   48 |    0 | W    | Rocky Mount     |  NC   |
-  |   32 |   30 |   35 | false |   93 |   45 |    0 | W    | Shreveport      |  LA   |
-  +------+------+------+-------+------+------+------+------+-----------------+-------+
-    ```
-# Environment variables
-These **environment variables** can be set to override the default bahaviour without editing mappings:
+# Sample usage
+
+The [samples](samples) directory provides a quick overview of the different use cases
+
+### Upload a CSV file to create a new table
+The [samples/cities_20190506.csv](samples/cities_20190506.csv) file is CSV file, **separated with `,`**, and **with a header line**.
+It has **127 records**.
+
+> Upload the file to the `biquery-autoload` GCS bucket
+> ```bash
+> $> gsutil cp samples/cities_20190506.csv gs://bq-autoload
+> ```
+
+-> A new **`Staging.cities`** BigQuery table will automatically be created and populated with data from the CSV
+* The column names are extracted from the header line
+* The column types are infered from data
+
+> ```bash
+> $> bq query-q "SELECT * FROM Staging.cities LIMIT 5"
+> +------+------+------+-------+------+------+------+----+-----------------+-------+
+> | LatD | LatM | LatS |  NS   | LonD | LonM | LonS | EW |      City       | State |
+> +------+------+------+-------+------+------+------+----+-----------------+-------+
+> |   39 |   45 |    0 | false |   75 |   33 |    0 | W  | Wilmington      |  DE   |
+> |   41 |   15 |    0 | false |   77 |    0 |    0 | W  | Williamsport    |  PA   |
+> |   26 |   43 |   11 | false |   80 |    3 |    0 | W  | West Palm Beach |  FL   |
+> |   36 |   40 |   11 | false |  121 |   39 |    0 | W  | Salinas         |  CA   |
+> |   50 |   25 |   11 | false |  104 |   39 |    0 | W  | Regina          |  SA   |
+> +------+------+------+-------+------+------+------+----+-----------------+-------+
+> $> bq query -q --format json "SELECT COUNT(*) as Count FROM Staging.cities"
+> [{"Count":"127"}]
+> ```
+
+### Upload a CSV file, adding data and a new column to the existing table
+The [samples/cities_20190507.csv](samples/cities_20190507.csv) has the same structure as [samples/cities_20190506.csv](samples/cities_20190506.csv) with one ***additional `Comment` column***, and has **1 record**
+
+Upload the file to the `biquery-autoload` GCS bucket
+
+> ```bash
+> $> gsutil cp samples/cities_20190507.csv gs://bq-autoload
+> ```
+
+-> The **`Staging.cities`** BigQuery table is updated:
+* The `Comment` column has been created with a `String` infered type, and a `null`default value
+* The new line from the [samples/cities_20190507.csv](samples/cities_20190507.csv) file has been added
+
+> ```bash
+> $> bq query-q "SELECT * FROM Staging.cities LIMIT 5"
+> +------+------+------+-------+------+------+------+----+-----------------+-------+------------------------------------------------------+
+> | LatD | LatM | LatS |  NS   | LonD | LonM | LonS | EW |      City       | State |                       Comment                        |
+> +------+------+------+-------+------+------+------+----+-----------------+-------+------------------------------------------------------+
+> |   41 |    5 |   59 | false |   80 |   39 |    0 | W  | Youngstown      |  OH   | This is a new line appended from cities_20190507.csv |
+> |   39 |   45 |    0 | false |   75 |   33 |    0 | W  | Wilmington      |  DE   | NULL                                                 |
+> |   41 |   15 |    0 | false |   77 |    0 |    0 | W  | Williamsport    |  PA   | NULL                                                 |
+> |   26 |   43 |   11 | false |   80 |    3 |    0 | W  | West Palm Beach |  FL   | NULL                                                 |
+> |   36 |   40 |   11 | false |  121 |   39 |    0 | W  | Salinas         |  CA   | NULL                                                 |
+> +------+------+------+-------+------+------+------+----+-----------------+-------+------------------------------------------------------+
+> $> bq query -q --format json "SELECT COUNT(*) as Count FROM Staging.cities"
+> [{"Count":"128"}]
+> ```
+
+### Upload a CSV file, using custom metadata to specify an arbitrary table, and specify `TRUNCATE` mode to replace all existing data 
+The [samples/export_cities.20190508.csv](samples/export_cities.20190508.csv) has the the same structure as [samples/cities_20190506.csv](samples/cities_20190506.csv) _(eg: no `Comment` column)_ and has **10 records**.
+
+Uploading this file as is would normally cause a new `export_cities` table to be created.
+We will upload this file with additional custom metadata to override this behaviour
+> ```bash
+> $> gsutil cp -h "x-goog-meta-bigquery.configuration.load.destinationTable.datasetId: Cities" \
+               -h "x-goog-meta-bigquery.configuration.load.writeDisposition: WRITE_TRUNCATE" \
+               samples/export_cities.20190508.csv gs://bq-autoload
+> ```
+
+-> The **`Staging.cities`** BigQuery table is updated:
+* The `Comment` column has been deleted (due to the `WRITE_TRUNCATE`mode being used)
+* All existing rows have been deleted, and the 10 records from the CSV file have been inserted
+
+> ```bash
+> $> bq query-q "SELECT * FROM Staging.cities LIMIT 5"
+> +------+------+------+-------+------+------+------+----+-----------------+-------+
+> | LatD | LatM | LatS |  NS   | LonD | LonM | LonS | EW |      City       | State |
+> +------+------+------+-------+------+------+------+----+-----------------+-------+
+> |   41 |    5 |   59 | false |   80 |   39 |    0 | W  | Youngstown      |  OH   |
+> |   39 |   45 |    0 | false |   75 |   33 |    0 | W  | Wilmington      |  DE   |
+> |   41 |   15 |    0 | false |   77 |    0 |    0 | W  | Williamsport    |  PA   |
+> |   26 |   43 |   11 | false |   80 |    3 |    0 | W  | West Palm Beach |  FL   |
+> |   36 |   40 |   11 | false |  121 |   39 |    0 | W  | Salinas         |  CA   |
+> +------+------+------+-------+------+------+------+----+-----------------+-------+
+> $> bq query -q --format json "SELECT COUNT(*) as Count FROM Staging.cities"
+> [{"Count":"10"}]
+> ```
+
+### Upload a CSV file without header into a new table, configure columns names and types using a mappings file
+The [samples/cities_noheader_20190506.csv](samples/cities_noheader_20190506.csv) has the the same structure as [samples/cities_20190506.csv](samples/cities_20190506.csv) but has no header line. It has 10 records.
+
+Uploading this file as is would normally result into a new `cities_noheader` table being created with generic columns names like `{inferedType}_field_{n}`
+> ```bash
+> $> gsutil cp samples/cities_noheader_20190506.csv gs://bq-autoload
+> $> bq query -q "SELECT * FROM Staging.cities_noheader LIMIT 1"
+> +---------------+---------------+---------------+--------------+---------------+---------------+---------------+----------------+----------------+----------------+
+> | int64_field_0 | int64_field_1 | int64_field_2 | bool_field_3 | int64_field_4 | int64_field_5 | int64_field_6 | string_field_7 | string_field_8 | string_field_9 |
+> +---------------+---------------+---------------+--------------+---------------+---------------+---------------+----------------+----------------+----------------+
+> |            39 |            45 |             0 |        false |            75 |            33 |             0 | W              | Wilmington     |  DE            |
+> +---------------+---------------+---------------+--------------+---------------+---------------+---------------+----------------+----------------+----------------+
+> ```
+
+The [samples/mappings/cities_noheader_yyyyMMdd.json](samples/mappings/cities_noheader_yyyyMMdd.json) file defines a mapping matching the header-less CSV file name _(`/\/cities_noheader_\d{8}\.csv$/`)_ and specifies the column names and types to be used.
+
+> ```js
+> [
+>   {
+>     "id": "cities_noheader_yyyyMMdd",
+>     "match": "\\/cities_noheader_\\d{8}\\.csv$",
+>     "configuration.load.schema.fields[0].name": "LatD",
+>     "configuration.load.schema.fields[0].type": "INTEGER",
+>     "configuration.load.schema.fields[1].name": "LatM",
+>     "configuration.load.schema.fields[1].type": "INTEGER",
+>     "configuration.load.schema.fields[2].name": "LatS",
+>     "configuration.load.schema.fields[2].type": "INTEGER",
+>     "configuration.load.schema.fields[3].name": "NS",
+>     "configuration.load.schema.fields[3].type": "BOOLEAN",
+>     // ...
+>   }
+> ]
+> ```
+
+Uploading this mapping file to the `mappings` directory of the autoload GCS bucket will allow the Cloud Function to be parsed, and the configuration to be modified for all files matching the `cities_noheader_yyyyMMdd.csv` pattern.
+
+Subsequent upload of the [samples/cities_noheader_20190506.csv](samples/cities_noheader_20190506.csv) file will yiled a different result
+
+> ```bash
+> $> gsutil cp samples/mappings/cities_noheader_yyyyMMdd.json gs://bq-autoload/mappings/cities_noheader_yyyyMMdd.json
+> $> gsutil cp samples/cities_noheader_20190506.csv gs://bq-autoload
+> ```
+
+-> The **`Staging.cities_noheaders`** BigQuery table is created:
+* The column names and types are extracted from the load job configuration
+
+> ```bash
+> $> bq query -q "SELECT * FROM Staging.cities_noheader LIMIT 1"
+> +------+------+------+-------+------+------+------+----+----------+-------+
+> | LatD | LatM | LatS |  NS   | LonD | LonM | LonS | EW |   City   | State |
+> +------+------+------+-------+------+------+------+----+----------+-------+
+> |   49 |   52 |   48 | false |   97 |    9 |    0 | W  | Winnipeg |  MB   |
+> +------+------+------+-------+------+------+------+----+----------+-------+
+> ```
+
+### Declare a new `*.unl` file format _(pipe-delimited file format)_
+--TODO--
+
+# Changing and overriding default behaviour
+
+When fired, the Cloud Function creates a BigQuery load job for the triggering file.
+
+This job will be auto-configured with sensible default options, but you can alter these options using:
+* Environment variables
+* Custom metadata on the file
+* Mapping files
+
+[The complete list of available configuration options is available at https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs#configuration.load](https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs#configuration.load)
+
+## Environment variables
+These **environment variables** can be set during the deployment to override the default bahaviour without editing mappings:
 * **`PROJECT_ID`**: GCP Project ID _(any `String`, **mandatory**, no default value)_
 * **`DATASET_ID`**: Default dataset for the destination table _(any `String`, defaults to `"Staging"`)_
 * **`CREATE_DISPOSITION`**: Should new tables be automatically created _(`CREATE_IF_NEEDED|CREATE_NEVER`, defaults to `CREATE_IF_NEEDED`)_
 * **`WRITE_DISPOSITION`**: How new data for an existing table should be processed _(`WRITE_TRUNCATE|WRITE_APPEND|WRITE_EMPTY`, defaults to `WRITE_APPEND`)_
 * **`ENCODING`**: Encoding of the file _(`UTF-8|ISO-8859-1`, defaults to `UTF-8`)_
 
-# Mapping files
-When fired, the Cloud Function creates a BigQuery load job for the triggering file.
+## Custom metadata
+Any custom metadata prefixed with `bigquery.` will be added to the `load` job configuration
+Any option specified in custom metadata will take precedence and override existing configuration options if present
 
-The configuration for this job results from the combination of all mappings matching the file's pattern, and all custom metadata prefixed with `bigquery.` on the file.
+>**Example:**
+> Changing the table name and dataset by setting custom metadata at upload time
+> *Note: Custom metadata keys must be prefixed with `x-goog-meta-` when using gsutil to upload the file*
+>```bash
+>  gsutil -h "x-goog-meta-bigquery.configuration.load.destinationTable.datasetId: Test" \
+>         -h "x-goog-meta-bigquery.configuration.load.destinationTable.tableId: City" \
+>         cp "samples/cities_20190506.csv" "gs://bq-autoload/"
+>```
 
-## Mapping file structure
+## Mapping files
+
+### Mapping file structure
 A mapping file is a list of mapping configurations.
 
 A mapping configuration is defined as follows:
@@ -106,7 +246,7 @@ A mapping configuration is defined as follows:
   "configuration.load.writeDisposition":"WRITE_TRUNCATE"
 }
 ```
-## Adding a new mapping file
+### Adding a new mapping file
 All files of the autoload bucket matching the _(glob)_ pattern **`/mappings/**/*.json`** will be aggregated to obtain the full mapping configuration
 
 Therefore, you can add any number of arbitrary JSON files to the `/mappings/` directory, defining the mappings you want to use.
@@ -146,22 +286,11 @@ Environment variables are available under the `env`prefix.
 >}
 >```
 
-# Custom metadata
-Any custom metadata prefixed with `bigquery.` will be added to the `load` job configuration
-Any option specified in custom metadata will take precedence and override existing configuration options if present
-
->**Example:**
-> Changing the table name and dataset by setting custom metadata at upload time
-> *Note: Custom metadata keys must be prefixed with `x-goog-meta-` when using gsutil to upload the file*
->```bash
->  gsutil -h "x-goog-meta-bigquery.configuration.load.destinationTable.datasetId: Test" \
->         -h "x-goog-meta-bigquery.configuration.load.destinationTable.tableId: City" \
->         cp "samples/cities_20190506.csv" "gs://bq-autoload/"
->```
-
-# Default behaviour
+## Default mappings reference
 The `mapping/000_default_mappings.json` file defines the default configuration for the BigQuery `load` job
-You can edit this file to modify or add default behaviour.
+You can edit this file prior to deployment to modify or add default behaviour.
+
+The following sections describe the default configuration shipped with this CLoud Function
 
 #### "_global_config"
 ```json
@@ -173,6 +302,8 @@ You can edit this file to modify or add default behaviour.
    "configuration.load.createDisposition":"{{{env.CREATE_DISPOSITION}}}{{^env.CREATE_DISPOSITION}}CREATE_IF_NEEDED{{/env.CREATE_DISPOSITION}}",
    "configuration.load.writeDisposition":"{{{env.WRITE_DISPOSITION}}}{{^env.WRITE_DISPOSITION}}WRITE_APPEND{{/env.WRITE_DISPOSITION}}",
    "configuration.load.encoding":"{{{env.ENCODING}}}{{^env.ENCODING}}UTF-8{{/env.ENCODING}}",
+   "configuration.load.schemaUpdateOptions[0]": "ALLOW_FIELD_ADDITION",
+	 "configuration.load.schemaUpdateOptions[1]": "ALLOW_FIELD_RELAXATION"
 }
 ```
 This configuration always applies and defines the global configuration options such as project id, dataset id, and write disposition
@@ -216,9 +347,7 @@ Load options for the CSV file format:
    "id":"_format_csv",
    "match":".+\\.csv$",
    "configuration.load.sourceFormat":"CSV",
-   "configuration.load.autodetect":"True",
-   "configuration.load.skipLeadingRows":"1",
-   "configuration.load.ignoreUnknownValues":"True"
+   "configuration.load.autodetect":"True"
 }
 ``` 
 
@@ -228,7 +357,7 @@ Load options for the JSON file format:
     "id":"_format_json",
     "match":".+\\.js(?:on)?$",
     "configuration.load.sourceFormat":"NEWLINE_DELIMITED_JSON",
-    "configuration.load.ignoreUnknownValues":"True"
+    "configuration.load.autodetect":"True"
 }
 ```
 
