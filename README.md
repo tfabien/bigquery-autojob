@@ -31,7 +31,7 @@ If the default behaviour does not suit your needs, it can be modified for all or
      gsutil cp -r "./mappings" "gs://bq-autoload/"
   ```
  
-* Deploy as a cloud function triggered by changes on this GCS bucket
+* Deploy as a cloud function triggered by changes on this GCS bucket (**do not forget to replace the project id**)
   ```bash
   $> gcloud functions deploy "bigquery-autoload" \
                       --trigger-bucket "bq-autoload" \
