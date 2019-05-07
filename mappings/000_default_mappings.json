@@ -2,7 +2,7 @@
    {
       "id": "_global_config",
       "match": ".*",
-      "configuration.load.destinationTable.projectId":"__REPLACE_WITH_YOUR_PROJECT_ID__",
+      "configuration.load.destinationTable.projectId":"dev-confo",
       "configuration.load.destinationTable.datasetId":"Staging",
       "configuration.load.writeDisposition":"WRITE_APPEND"	  
    },

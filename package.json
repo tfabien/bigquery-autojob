@@ -5,6 +5,7 @@
     "@google-cloud/bigquery": "3.0.0",
     "@google-cloud/storage": "2.5.0",
     "dot-object": "1.7.1",
-    "mustache": "3.0.1"
+    "mustache": "3.0.1",
+	"get-stream": "5.1.0"
   }
 }
