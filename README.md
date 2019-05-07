@@ -34,10 +34,10 @@ If the default behaviour does not suit your needs, it can be modified for all or
 * Deploy as a cloud function triggered by changes on this GCS bucket
   ```bash
   $> gcloud functions deploy "bigquery-autoload" \
-              --trigger-bucket "bq-autoload" \
-			  --set-env-vars "PROJECT_ID={{REPLACE_WITH_YOUR_OWN_GCP_PROJECT_ID}}" \
-		      --runtime "nodejs10" \
-		      --memory "128MB"
+                      --trigger-bucket "bq-autoload" \
+                      --set-env-vars "PROJECT_ID={{REPLACE_WITH_YOUR_OWN_GCP_PROJECT_ID}}" \
+                      --runtime "nodejs10" \
+                      --memory "128MB"
   ```
   
 ### Loading data
