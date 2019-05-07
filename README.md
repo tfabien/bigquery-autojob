@@ -46,12 +46,15 @@ If the default behaviour does not suit your needs, it can be modified for all or
   
 * Upload the mapping files to the gcs bucket
   ```bash
-  $> gsutil cp -r "./mappings/" "gs://bq-autoload/mappings/"
+  $> gsutil cp -r "./mappings" "gs://bq-autoload/"
   ```
  
 * Deploy a cloud function triggered by changes on this GCS bucket
   ```bash
-  $> gcloud functions deploy "bigquery-autoload" --trigger-bucket "bq-autoload" --runtime "nodejs10"
+  $> gcloud functions deploy "bigquery-autoload" \
+                      --trigger-bucket "bq-autoload" \
+		      --runtime "nodejs10" \
+		      --memory "128MB"
   ```
   
 ### Loading data
