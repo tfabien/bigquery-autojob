@@ -19,31 +19,16 @@ If the default behaviour does not suit your needs, it can be modified for all or
 
 # Quickstart
 ### First-time configuration
-* Clone this repository to your local  filesystem
-  ```bash
-  $> git clone "https://github.com/tfabien/bigquery-autoload/" && cd "bigquery-autoload" 
-  ``` 
-
 * Create a new `bq-autoload` Google Cloud Storage bucket
   ```bash
   $> gsutil mb -c regional -l europe-west1 "gs://bq-autoload"
   ```
   
-* Edit the default mapping file [`mappings/000_default_mappings.json`](mappings/000_default_mappings.json) and alter the `_global_config` mapping configuration to replace the `projectId` property to match yours
-   ```bash
-   $> cat ./mappings/000_default_mappings.json 
-   ```
-   ```js
-   [
-     {
-        "id":"_global_config",
-	    "configuration.load.destinationTable.projectId":"__REPLACE_WITH_YOUR_PROJECT_ID__",
-        // ...
-     },
-     // ...
-   ]
-  ```
-  
+* Clone this repository to your local  filesystem
+  ```bash
+  $> git clone "https://github.com/tfabien/bigquery-autoload/" && cd "bigquery-autoload" 
+  ``` 
+
 * Upload the mapping files to the gcs bucket
   ```bash
   $> gsutil cp -r "./mappings" "gs://bq-autoload/"
@@ -52,7 +37,8 @@ If the default behaviour does not suit your needs, it can be modified for all or
 * Deploy a cloud function triggered by changes on this GCS bucket
   ```bash
   $> gcloud functions deploy "bigquery-autoload" \
-                      --trigger-bucket "bq-autoload" \
+              --trigger-bucket "bq-autoload" \
+			  --set-env-vars "PROJECT_ID={{REPLACE_WITH_YOUR_OWN_GCP_PROJECT_ID}}" \
 		      --runtime "nodejs10" \
 		      --memory "128MB"
   ```
@@ -120,8 +106,9 @@ All files of the autoload bucket matching the _(glob)_ pattern **`/mappings/**/*
 Therefore, you can add any number of arbitrary JSON files to the `/mappings/` directory, defining the mappings you want to use.
 These mappings can be specific to a single file, or a file pattern matching multiple similar files you want to process the same way.
 
-Named capturing groups are available as variables for replacement inside the values of the configuration options.
 [Mustache](https://mustache.github.io/) templating engine is used for the `String` values of the configuration.
+Named capturing groups are available as variables for replacement inside the values of the configuration options under the `groups` prefix.
+Environment variables are available under the `env`prefix.
 
 >**Example:**
 > The following file will instruct biquery-autoloader to load data from `export_{table}_{yyyyMMdd}.csv` into the `{table}` table, and use truncate data dwrite disposition at load rather than append. 
@@ -135,7 +122,7 @@ Named capturing groups are available as variables for replacement inside the val
 >   {
 >      "id": "export_{table}_{yyyyMMdd}.csv",
 >      "match": "\\/export_(?<TABLE>.*)_\\d{8}\\.csv$",
->      "configuration.load.destinationTable.tableId": "{{{TABLE}}}",
+>      "configuration.load.destinationTable.tableId": "{{{groups.TABLE}}}",
 >      "configuration.load.writeDisposition":"WRITE_TRUNCATE"
 >   }
 >]
@@ -150,19 +137,20 @@ You can edit this file to modify or add default behaviour.
 {
   "id": "_global_config",
   "match": ".*",
-  "configuration.load.destinationTable.projectId":"__REPLACE_WITH_YOUR_PROJECT_ID__",
+  "configuration.load.destinationTable.projectId":"env.PROJECT_ID",
   "configuration.load.destinationTable.datasetId":"Staging",
   "configuration.load.writeDisposition":"WRITE_APPEND"	  
 }
 ```
 This configuration always applies and defines the global configuration options such as project id, dataset id, and write disposition
+Project id will be pulled from Environment variables
 
 #### "_source_uri"
 ```json
 {
   "id": "_source_uri",
   "match": "(?<FILE_URI>.*)",
-  "configuration.load.sourceUris[0]":"{{{FILE_URI}}}"
+  "configuration.load.sourceUris[0]":"{{{groups.FILE_URI}}}"
 }
 ```
 This configuration always applies and defines the source uri for the load job.
@@ -172,7 +160,7 @@ This configuration always applies and defines the source uri for the load job.
 {
    "id":"_table_naming",
    "match":"^gs\\:\\/\\/(?<FILE_BUCKET>[^\\/]+)(?:\\/(?<FILE_SUBDIR>.*))?\\/(?<FILE_NAME>.*?)(?:_(?<FILE_DATE>[\\d\\-\\_]+)*)?(?:\\.(?<FILE_EXTENSION>.*))?$",
-   "configuration.load.destinationTable.tableId":"{{{FILE_NAME}}}"
+   "configuration.load.destinationTable.tableId":"{{{groups.FILE_NAME}}}"
 }
 ```
 This configuration applies to all files and defines the table naming pattern for this file.
@@ -196,8 +184,8 @@ Depending on the variables you want to use, you may also need to alter the `matc
 > {
 >   "id": "_table_naming",
 >   "match": "^gs\\:\\/\\/[^\\/]+(?<DATASET_ID>\\/[^\\/]+)\\/(?<TABLE_ID>[^\\/]+)\\/.*$",
->   "configuration.load.destinationTable.datasetId": "{{{DATASET_ID}}}",
->   "configuration.load.destinationTable.tableId": "{{{TABLE_ID}}}"
+>   "configuration.load.destinationTable.datasetId": "{{{groups.DATASET_ID}}}",
+>   "configuration.load.destinationTable.tableId": "{{{groups.TABLE_ID}}}"
 >}
 >```
 ### `_format_{csv|json|avro|...}`

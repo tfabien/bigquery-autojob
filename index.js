@@ -73,7 +73,7 @@ var getJobConfigurationFromMappings = (mappings, file) => {
         if (match) {
             console.log("Mapping '" + mapping.id + "' matches filepath, merging configuration...");
             // Add regex named groups to the available variables
-            mappingVariables = extend(true, mappingVariables, match.groups);
+            mappingVariables = { "env": process.env, "file": file, "groups": match.groups };
             // Replace variables in mapping template
             var mappingConfiguration = dot.dot(mapping.configuration);
             for (j in mappingConfiguration) {
