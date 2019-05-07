@@ -65,6 +65,14 @@ If the default behaviour does not suit your needs, it can be modified for all or
   |   32 |   30 |   35 | false |   93 |   45 |    0 | W    | Shreveport      |  LA   |
   +------+------+------+-------+------+------+------+------+-----------------+-------+
     ```
+# Environment variables
+These **environment variables** can be set to override the default bahaviour without editing mappings:
+* **`PROJECT_ID`**: GCP Project ID _(any `String`, **mandatory**, no default value)_
+* **`DATASET_ID`**: Default dataset for the destination table _(any `String`, defaults to `"Staging"`)_
+* **`CREATE_DISPOSITION`**: Should new tables be automatically created _(`CREATE_IF_NEEDED|CREATE_NEVER`, defaults to `CREATE_IF_NEEDED`)_
+* **`WRITE_DISPOSITION`**: How new data for an existing table should be processed _(`WRITE_TRUNCATE|WRITE_APPEND|WRITE_EMPTY`, defaults to `WRITE_APPEND`)_
+* **`ENCODING`**: Encoding of the file _(`UTF-8|ISO-8859-1`, defaults to `UTF-8`)_
+
 # Mapping files
 When fired, the Cloud Function creates a BigQuery load job for the triggering file.
 
@@ -125,8 +133,33 @@ Environment variables are available under the `env`prefix.
 >   }
 >]
 >```
+  
+> **Example:**
+> Use the first subdirectory as `datasetId`, and the second one as `tableId`, ignoring the file name
+> The `gs://bq-autoload/Public/Cities/export_cities_2019-05-06.csv` will be loaded into the `Public.Cities` table
+> ```json
+> {
+>   "id": "_table_naming",
+>   "match": "^gs\\:\\/\\/[^\\/]+(?<DATASET_ID>\\/[^\\/]+)\\/(?<TABLE_ID>[^\\/]+)\\/.*$",
+>   "configuration.load.destinationTable.datasetId": "{{{groups.DATASET_ID}}}",
+>   "configuration.load.destinationTable.tableId": "{{{groups.TABLE_ID}}}"
+>}
+>```
 
-## Default behaviour
+# Custom metadata
+Any custom metadata prefixed with `bigquery.` will be added to the `load` job configuration
+Any option specified in custom metadata will take precedence and override existing configuration options if present
+
+>**Example:**
+> Changing the table name and dataset by setting custom metadata at upload time
+> *Note: Custom metadata keys must be prefixed with `x-goog-meta-` when using gsutil to upload the file*
+>```bash
+>  gsutil -h "x-goog-meta-bigquery.configuration.load.destinationTable.datasetId: Test" \
+>         -h "x-goog-meta-bigquery.configuration.load.destinationTable.tableId: City" \
+>         cp "samples/cities_20190506.csv" "gs://bq-autoload/"
+>```
+
+# Default behaviour
 The `mapping/000_default_mappings.json` file defines the default configuration for the BigQuery `load` job
 You can edit this file to modify or add default behaviour.
 
@@ -143,12 +176,6 @@ You can edit this file to modify or add default behaviour.
 }
 ```
 This configuration always applies and defines the global configuration options such as project id, dataset id, and write disposition
-Project id will be pulled from the mandatory `PROJECT_ID` environment variable
-Other environment variables can be set to override the default bahaviour without editing this file:
-* `DATASET_ID`: Default dataset for the destination table (Any `String`, defaults to `Staging`)
-* `CREATE_DISPOSITION`: Should the table be created if needed (`CREATE_IF_NEEDED|CREATE_NEVER`, default to `CREATE_IF_NEEDED`)
-* `WRITE_DISPOSITION`: How new data for an existing table should be processed (`WRITE_TRUNCATE|WRITE_APPEND|WRITE_EMPTY`, default to `WRITE_APPEND`)
-* `ENCODING`: Encoding of the file (`UTF-8|ISO-8859-1`, default to `UTF-8`)
 
 #### "_source_uri"
 ```json
@@ -173,7 +200,7 @@ This configuration applies to all files and defines the table naming pattern for
 The table name is derived from the file name minus it's extension and optionnal `yyyyMMdd-HHmmSS` timestamp suffix, using named cature groups inside the regular expression.
 
 > **Example:**
-> The following files will all be loaded inside the same **`cities`** table:
+> All the following files will be loaded inside the same **`cities`** table:
 > - `gs://bq-autoload/cities.csv`
 > - `gs://bq-autoload/cities.json`
 > - `gs://bq-autoload/cities_20190506.csv`
@@ -182,17 +209,6 @@ The table name is derived from the file name minus it's extension and optionnal 
 You can change the `configuration.load.destinationTable.tableId`property to alter this naming convention if the provided default does not suite your needs.
 Depending on the variables you want to use, you may also need to alter the `match` property to add new capturing groups.
 
-> **Example:**
-> Use the first subdirectory as `datasetId`, and the second one as `tableId`, ignoring the file name
-> The `gs://bq-autoload/Public/Cities/export_cities_2019-05-06.csv` will be loaded into the `Public.Cities` table
-> ```json
-> {
->   "id": "_table_naming",
->   "match": "^gs\\:\\/\\/[^\\/]+(?<DATASET_ID>\\/[^\\/]+)\\/(?<TABLE_ID>[^\\/]+)\\/.*$",
->   "configuration.load.destinationTable.datasetId": "{{{groups.DATASET_ID}}}",
->   "configuration.load.destinationTable.tableId": "{{{groups.TABLE_ID}}}"
->}
->```
 ### `_format_{csv|json|avro|...}`
 Load options for the CSV file format:
 ```json
@@ -225,16 +241,3 @@ Load options for the AVRO file format:
    "configuration.load.useAvroLogicalTypes":"True"
 }
 ```
-
-# Custom metadata
-Any custom metadata prefixed with `bigquery.` will be added to the `load` job configuration
-Any option specified in custom metadata will take precedence and override existing configuration options if present
-
->**Example:**
-> Changing the table name and dataset by setting custom metadata at upload time
-> *Note: Custom metadata keys must be prefixed with `x-goog-meta-` when using gsutil to upload the file*
->```bash
->  gsutil -h "x-goog-meta-bigquery.configuration.load.destinationTable.datasetId: Test" \
->         -h "x-goog-meta-bigquery.configuration.load.destinationTable.tableId: City" \
->         cp "samples/cities_20190506.csv" "gs://bq-autoload/"
->```
