@@ -26,7 +26,7 @@ If the default behaviour does not suit your needs, it can be modified for all or
 
 * Create a new `bq-autoload` Google Cloud Storage bucket
   ```bash
-  $> gsutil mb -c regional "gs://bq-autoload"
+  $> gsutil mb -c regional -l europe-west1 "gs://bq-autoload"
   ```
   
 * Edit the default mapping file [`mappings/000_default_mappings.json`](mappings/000_default_mappings.json) and alter the `_global_config` mapping configuration to replace the `projectId` property to match yours
