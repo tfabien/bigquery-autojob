@@ -19,22 +19,21 @@ If the default behaviour does not suit your needs, it can be modified for all or
   ```bash
   $> gsutil mb -c regional -l europe-west1 "gs://bq-autoload"
   ```
-  
-* Clone this repository to your local  filesystem and upload the mapping files to the gcs bucket
-  ```bash
-  $> git clone "https://github.com/tfabien/bigquery-autoload/" && \
-       cd "bigquery-autoload" && \
-       gsutil cp -r "./mappings" "gs://bq-autoload/"
-  ```
  
-* Deploy as a cloud function triggered by changes on this GCS bucket _(**do not forget to replace the project id**)_
+* Clone and deploy this repository as a cloud function triggered by changes on this GCS bucket _(**do not forget to replace the project id**)_
   ```bash
-  $> gcloud functions deploy "bigquery-autoload" \
-                      --trigger-bucket "bq-autoload" \
+  $> git clone "https://github.com/tfabien/bigquery-autoload/"                     \
+     && cd "bigquery-autoload"                                                     \
+     && gcloud functions deploy "bigquery-autoload"                                \
+                      --trigger-bucket "bq-autoload"                               \
                       --set-env-vars "PROJECT_ID=REPLACE_WITH_YOUR_GCP_PROJECT_ID" \
-                      --runtime "nodejs10" \
+                      --runtime "nodejs10"                                         \
                       --memory "128MB"
   ```
+  
+That's it :+1:
+
+Any file you upload to the `bq_autoload` GCS bucket will now automatically be loaded into a BigQuery table within seconds.
   
 # Sample usage
 

@@ -8,9 +8,11 @@ const extend = require('extend');
 const dot = require('dot-object');
 const mustache = require('mustache');
 const getStream =  require('get-stream');
+const fs = require('fs');
 
 const storage = new Storage();
 const bigquery = new BigQuery();
+const defaultMappings = eval(fs.readFileSync('mappings/000_default_mappings.json') + '');
 
 const mappingsDir = "mappings/"
 
@@ -22,13 +24,18 @@ exports['bigquery-autoload'] = async (data, context) => {
     const file = data;
     console.log("Found new file: gs://" + file.bucket + "/" + file.name);
   
+  
   	if (file.name.startsWith(mappingsDir)) {
     	console.log("File is located in mappings directory, ignoring...");
         return;
     }
+	
+	// Get job configuration from default mappings
+	var jobConfiguration = await getJobConfigurationFromMappings(defaultMappings, file);
   
-    // Get job configuration from mappings (loading mapping configs from GCS)
-    var jobConfiguration = getJobConfigurationFromMappings(await loadMappingsFromGCS(file.bucket), file);
+    // Merge job configuration from mapping files (loading mapping configs from GCS)
+	var gcsMappings = await loadMappingsFromGCS(file.bucket);
+    jobConfiguration = extend(true, jobConfiguration, await getJobConfigurationFromMappings(gcsMappings, file));
   
     // Merge job configuration from file's metadata
     jobConfiguration = extend(true, jobConfiguration, await getJobConfigurationFromMetadata(file));
@@ -58,7 +65,7 @@ var loadMappingsFromGCS = async (bucketName) => {
 }
 
 // Find matching configurations for file
-var getJobConfigurationFromMappings = (mappings, file) => {
+var getJobConfigurationFromMappings = async (mappings, file) => {
     var result = {};
     var mappingVariables = {};
     const filePath = "gs://" + file.bucket + "/" + file.name;
