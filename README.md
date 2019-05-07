@@ -133,15 +133,22 @@ You can edit this file to modify or add default behaviour.
 #### "_global_config"
 ```json
 {
-  "id": "_global_config",
-  "match": ".*",
-  "configuration.load.destinationTable.projectId":"env.PROJECT_ID",
-  "configuration.load.destinationTable.datasetId":"Staging",
-  "configuration.load.writeDisposition":"WRITE_APPEND"	  
+   "id": "_global_config",
+   "match": ".*",
+   "configuration.load.destinationTable.projectId":"{{{env.PROJECT_ID}}}",
+   "configuration.load.destinationTable.datasetId":"{{{env.DATASET_ID}}}{{^env.DATASET_ID}}Staging{{/env.DATASET_ID}}",
+   "configuration.load.createDisposition":"{{{env.CREATE_DISPOSITION}}}{{^env.CREATE_DISPOSITION}}CREATE_IF_NEEDED{{/env.CREATE_DISPOSITION}}",
+   "configuration.load.writeDisposition":"{{{env.WRITE_DISPOSITION}}}{{^env.WRITE_DISPOSITION}}WRITE_APPEND{{/env.WRITE_DISPOSITION}}",
+   "configuration.load.encoding":"{{{env.ENCODING}}}{{^env.ENCODING}}UTF-8{{/env.ENCODING}}",
 }
 ```
 This configuration always applies and defines the global configuration options such as project id, dataset id, and write disposition
-Project id will be pulled from Environment variables
+Project id will be pulled from the mandatory `PROJECT_ID` environment variable
+Other environment variables can be set to override the default bahaviour without editing this file:
+* `DATASET_ID`: Default dataset for the destination table (Any `String`, defaults to `Staging`)
+* `CREATE_DISPOSITION`: Should the table be created if needed (`CREATE_IF_NEEDED|CREATE_NEVER`, default to `CREATE_IF_NEEDED`)
+* `WRITE_DISPOSITION`: How new data for an existing table should be processed (`WRITE_TRUNCATE|WRITE_APPEND|WRITE_EMPTY`, default to `WRITE_APPEND`)
+* `ENCODING`: Encoding of the file (`UTF-8|ISO-8859-1`, default to `UTF-8`)
 
 #### "_source_uri"
 ```json
