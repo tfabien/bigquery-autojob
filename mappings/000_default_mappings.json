@@ -2,9 +2,11 @@
    {
       "id": "_global_config",
       "match": ".*",
-      "configuration.load.destinationTable.projectId":"{{{Env.PROJECT_ID}}}",
-      "configuration.load.destinationTable.datasetId":"Staging",
-      "configuration.load.writeDisposition":"WRITE_APPEND"	  
+      "configuration.load.destinationTable.projectId":"{{{env.PROJECT_ID}}}",
+      "configuration.load.destinationTable.datasetId":"{{{env.DATASET_ID}}}{{^env.DATASET_ID}}Staging{{/env.DATASET_ID}}",
+      "configuration.load.createDisposition":"{{{env.CREATE_DISPOSITION}}}{{^env.CREATE_DISPOSITION}}CREATE_IF_NEEDED{{/env.CREATE_DISPOSITION}}",
+      "configuration.load.writeDisposition":"{{{env.WRITE_DISPOSITION}}}{{^env.WRITE_DISPOSITION}}WRITE_APPEND{{/env.WRITE_DISPOSITION}}",
+      "configuration.load.encoding":"{{{env.ENCODING}}}{{^env.ENCODING}}UTF-8{{/env.ENCODING}}",
    },
    {
       "id": "_source_uri",
