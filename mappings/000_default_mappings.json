@@ -30,7 +30,7 @@
       "id":"_format_json",
       "match":".+\\.js(?:on)?$",
       "configuration.load.sourceFormat":"NEWLINE_DELIMITED_JSON",
-      "configuration.load.ignoreUnknownValues":"True"
+	  "configuration.load.autodetect":"True"
    },
    {
       "id":"_format_avro",
