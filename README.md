@@ -24,17 +24,14 @@ If the default behaviour does not suit your needs, it can be modified for all or
   $> gsutil mb -c regional -l europe-west1 "gs://bq-autoload"
   ```
   
-* Clone this repository to your local  filesystem
+* Clone this repository to your local  filesystem and upload the mapping files to the gcs bucket
   ```bash
-  $> git clone "https://github.com/tfabien/bigquery-autoload/" && cd "bigquery-autoload" 
-  ``` 
-
-* Upload the mapping files to the gcs bucket
-  ```bash
-  $> gsutil cp -r "./mappings" "gs://bq-autoload/"
+  $> git clone "https://github.com/tfabien/bigquery-autoload/" && \
+     cd "bigquery-autoload" && \
+     gsutil cp -r "./mappings" "gs://bq-autoload/"
   ```
  
-* Deploy a cloud function triggered by changes on this GCS bucket
+* Deploy as a cloud function triggered by changes on this GCS bucket
   ```bash
   $> gcloud functions deploy "bigquery-autoload" \
               --trigger-bucket "bq-autoload" \
@@ -49,6 +46,7 @@ If the default behaviour does not suit your needs, it can be modified for all or
   ```bash
   $> gsutil cp "samples/cities_20190506.csv" "gs://bq-autoload/"
   ```
+  
 * A few seconds later, the corresponding `cities` BigQuery table has been created with data from the sample CSV file
   ```bash
   $> bq query "SELECT * FROM Staging.cities LIMIT 10"
