@@ -103,8 +103,8 @@ Uploading this file as is would normally cause a new `export_cities` table to be
 We will upload this file with additional custom metadata to override this behaviour
 > ```bash
 > $> gsutil cp -h "x-goog-meta-bigquery.configuration.load.destinationTable.datasetId: Cities" \
-               -h "x-goog-meta-bigquery.configuration.load.writeDisposition: WRITE_TRUNCATE" \
-               samples/export_cities.20190508.csv gs://bq-autoload
+>              -h "x-goog-meta-bigquery.configuration.load.writeDisposition: WRITE_TRUNCATE" \
+>              samples/export_cities.20190508.csv gs://bq-autoload
 > ```
 
 -> The **`Staging.cities`** BigQuery table is updated:
