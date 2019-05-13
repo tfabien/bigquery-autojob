@@ -239,7 +239,7 @@ A mapping configuration is defined as follows:
   /**
    * Any number of configuration options for the load job
    * This are the options that will be merged into the effective job configuration if this mapping is active
-   * @see https://cloud.google.com/bigquery/docs/reference/rest/v2/jobs#configuration.load for the list of available options
+   * @see https://cloud.google.com/bigquery/docs/reference/rest/v2/JobConfiguration#JobConfigurationLoad for the list of available options
   **/
   "configuration.load.destinationTable.tableId": "MyTable",
   "configuration.load.writeDisposition":"WRITE_TRUNCATE"
