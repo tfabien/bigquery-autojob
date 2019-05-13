@@ -6,10 +6,9 @@ A Google Cloud Function providing a **simple and configurable** way to automatic
 
 It features a **_convention over configuration_** approches, and provides a sensible default configuration for common file formats _(CSV, JSON, AVRO, ORC, Parquet)_
 * The table name is automatically derived from the file's name, minus the extension, and date/timestamp suffix if any.
-* CSV and JSON files are loaded with autodetect feature enabled
+* Autodetect features enabled
 * Avro logical types are used
 * New data is appended to the table
-* ...
 
 If the default behaviour does not suit your needs, it can be modified for all or certain files through mapping files or custom metadata.
 
