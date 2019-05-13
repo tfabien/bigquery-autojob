@@ -1,6 +1,5 @@
 
 # bigquery-autoload
-**_Auto-load files from Google Cloud Storage to Google BigQuery tables_**
 
 A Google Cloud Function providing a **simple and configurable** way to automatically load data  from GCS files into Big Query tables.
 
