@@ -36,7 +36,7 @@ That's it :+1:
 Any file you upload to the `bq_autoload` GCS bucket will now automatically be loaded into a BigQuery table within seconds.
   
 # Sample usage
-See the (wiki)[wiki] for usage samples
+See the [wiki](https://github.com/tfabien/bigquery-autoload/wiki) for usage samples
 
 # Changing and overriding default behaviour
 
