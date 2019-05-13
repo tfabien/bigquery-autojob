@@ -12,7 +12,6 @@ It features a **_convention over configuration_** approches, and provides a sens
 If the default behaviour does not suit your needs, it can be modified for all or certain files through mapping files or custom metadata.
 
 # Quickstart
-### First-time configuration
 * Create a new `bq-autoload` Google Cloud Storage bucket
   ```bash
   $> gsutil mb -c regional -l europe-west1 "gs://bq-autoload"
