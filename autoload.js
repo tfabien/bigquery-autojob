@@ -44,4 +44,3 @@ module.exports = async function (context) {
   JSON.stringify(jobConfiguration, null, 2);
   const job = new BigQuery().createJob(jobConfiguration);
 }
-

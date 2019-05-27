@@ -8,7 +8,6 @@
     "get-stream": "5.1.0",
     "handlebars": "4.1.2",
     "handlebars-helpers": "0.10.0",
-    "handlebars-kit": "1.0.0",
     "handlebars-wax": "6.1.0",
     "hjson": "3.1.2",
     "lodash": "^4.17.11",
