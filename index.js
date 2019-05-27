@@ -1,6 +1,8 @@
-autoload = require('./autoload.js');
+const autoload = require('./modules/bigquery-autoload');
 
-exports['bigquery-autoload'] = async (data, context) => {
-    const file = data;
-    await autoload(file);
+const MAPPINGS_DIR = 'mappings';
+
+exports['bigquery-autoload'] = async (file, context) => {
+    console.log("Found new file: gs://" + file.bucket + "/" + file.name);
+    autoload(file);
 };

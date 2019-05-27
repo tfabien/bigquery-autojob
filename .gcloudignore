@@ -12,7 +12,9 @@
 # below:
 .git
 .gitignore
-
+.vscode
 node_modules
+test
 samples
+package-lock.json
 README.md
