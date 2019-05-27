@@ -1,0 +1,34 @@
+// Load options for BigQuery's supported file formats
+{
+  configuration.load: {
+    // CSV
+    {{#regex-match file.name "\.csv$" }}
+      sourceFormat: CSV
+      autodetect: True
+    {{/regex-match}}
+
+    // JSON
+    {{#regex-match file.name "\.js(on)?$" }}
+      sourceFormat: NEWLINE_DELIMITED_JSON
+      autodetect: True
+    {{/regex-match}}
+
+    // Avro
+    {{#regex-match file.name "\.avro$" }}
+      sourceFormat: AVRO
+      useLogicalTypes: True
+    {{/regex-match}}
+
+    // Parquet
+    {{#regex-match file.name "\.parquet$" }}
+      sourceFormat: PARQUET
+      /* -- TODO -- */
+    {{/regex-match}}
+
+    // ORC
+    {{#regex-match file.name "\.orc$" }}
+      sourceFormat: ORC
+      /* -- TODO -- */
+    {{/regex-match}}
+  }
+}

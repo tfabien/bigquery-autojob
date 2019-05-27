@@ -1,0 +1,24 @@
+{
+  {{#regex-match file.name 'cities_noheader_\d{8}\.csv$'}}
+    "configuration.load.schema.fields[0].name": "LatD"
+    "configuration.load.schema.fields[0].type": "INTEGER"
+    "configuration.load.schema.fields[1].name": "LatM"
+    "configuration.load.schema.fields[1].type": "INTEGER"
+    "configuration.load.schema.fields[2].name": "LatS"
+    "configuration.load.schema.fields[2].type": "INTEGER"
+    "configuration.load.schema.fields[3].name": "NS"
+    "configuration.load.schema.fields[3].type": "BOOLEAN"
+    "configuration.load.schema.fields[4].name": "LonD"
+    "configuration.load.schema.fields[4].type": "INTEGER"
+    "configuration.load.schema.fields[5].name": "LonM"
+    "configuration.load.schema.fields[5].type": "INTEGER"
+    "configuration.load.schema.fields[6].name": "LonS"
+    "configuration.load.schema.fields[6].type": "INTEGER"
+    "configuration.load.schema.fields[7].name": "EW"
+    "configuration.load.schema.fields[7].type": "STRING"
+    "configuration.load.schema.fields[8].name": "City"
+    "configuration.load.schema.fields[8].type": "STRING"
+    "configuration.load.schema.fields[9].name": "State"
+    "configuration.load.schema.fields[9].type": "STRING"
+  {{/regex-match}}
+}

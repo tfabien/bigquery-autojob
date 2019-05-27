@@ -1,0 +1,12 @@
+// Global configuration
+{
+  configuration.load: {
+    destinationTable: {
+      projectId: {{env.PROJECT_ID}}
+      datasetId: {{default env.DATASET_ID 'Data'}}
+    } ,
+    createDisposition: {{default env.CREATE_DISPOSITION 'CREATE_IF_NEEDED'}}
+    writeDisposition: {{default env.WRITE_DISPOSITION 'WRITE_APPEND'}}
+    encoding: {{default env.ENCODING 'UTF-8'}}
+  }
+}
