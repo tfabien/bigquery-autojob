@@ -22,13 +22,11 @@
     // Parquet
     {{#regex-match file.name "\.parquet$" }}
       sourceFormat: PARQUET
-      /* -- TODO -- */
     {{/regex-match}}
 
     // ORC
     {{#regex-match file.name "\.orc$" }}
       sourceFormat: ORC
-      /* -- TODO -- */
     {{/regex-match}}
   }
 }
