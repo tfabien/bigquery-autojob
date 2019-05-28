@@ -15,19 +15,21 @@ const getJobConfiguration = async function (gcsFile, userContext) {
   var mappings = new Config();
 
   // Load packaged mappings files
-  _.each(glob.sync(__dirname + "/../mappings/**/*.hbs"), (f) => { console.log(f); mappings.loadFile(f) });
+  _.each(glob.sync(__dirname + "/../mappings/**/*.hbs"), (f) => { console.debug(f); mappings.loadFile(f) });
 
   // Init GCS bucket
   const bucket = new Bucket(gcsFile.bucket);
 
   // Load GCS mappings files
   const files = await bucket.listFiles(MAPPINGS_DIR + '/**/*.hbs', { prefix: MAPPINGS_DIR + '/' });
-  for (const f of files) { mappings.loadStream(f.createReadStream()) }
+  for (const f of files) { console.debug('gs://' + f.bucket.name + '/' + f.name); mappings.loadStream(f.createReadStream()) }
 
   // Load mapping from metadata
   const customMetadatas = await bucket.customMetadatas(gcsFile);
   if (customMetadatas && customMetadatas[CUSTOM_METADATA_PREFIX]) {
-    mappings.load(JSON.stringify(customMetadatas[CUSTOM_METADATA_PREFIX], null, 2));
+    const document  = JSON.stringify(customMetadatas[CUSTOM_METADATA_PREFIX], null, 2);
+    console.debug('metadata: ' + document);
+    mappings.load(document);
   }
 
   // Compute

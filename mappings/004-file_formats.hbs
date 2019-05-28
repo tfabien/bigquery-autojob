@@ -1,6 +1,5 @@
 // Options for BigQuery's supported file formats
 {{#frame fileExt=(lowercase (extname file.name))}}
-{{log 'File extension is: %s' @fileExt}}
 {
   configuration.load: {
       // CSV

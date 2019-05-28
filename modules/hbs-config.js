@@ -97,6 +97,10 @@ Config.prototype.loadStream = function (...streams) {
 Config.prototype.compute = function (parameters) {
   const that = this;
   return _.reduce(this._templates, (result, template) => {
-    return extend(true, result, that._runTemplate(template, parameters));
+    const it = that._runTemplate(template, parameters);
+    console.debug('Merging configuration:')
+    console.debug(JSON.stringify(it, null, 2));
+    console.debug('- - -')
+    return extend(true, result, it);
   }, null);
 };
