@@ -1,32 +1,35 @@
-// Load options for BigQuery's supported file formats
+// Options for BigQuery's supported file formats
+{{#frame fileExt=(lowercase (extname file.name))}}
+{{log 'File extension is: %s' @fileExt}}
 {
   configuration.load: {
-    // CSV
-    {{#regex-match file.name "\.csv$" }}
-      sourceFormat: CSV
-      autodetect: True
-    {{/regex-match}}
+      // CSV
+      {{#eq @fileExt '.csv'}}
+        sourceFormat: CSV
+        autodetect: True
+      {{/eq}}
 
-    // JSON
-    {{#regex-match file.name "\.js(on)?$" }}
-      sourceFormat: NEWLINE_DELIMITED_JSON
-      autodetect: True
-    {{/regex-match}}
+      // JSON
+      {{#or (eq @fileExt '.js') (eq @fileExt '.json')}}
+        sourceFormat: NEWLINE_DELIMITED_JSON
+        autodetect: True
+      {{/or}}
 
-    // Avro
-    {{#regex-match file.name "\.avro$" }}
-      sourceFormat: AVRO
-      useLogicalTypes: True
-    {{/regex-match}}
+      // Avro
+      {{#eq @fileExt '.avro'}}
+        sourceFormat: AVRO
+        useAvroLogicalTypes: True
+      {{/eq}}
 
-    // Parquet
-    {{#regex-match file.name "\.parquet$" }}
-      sourceFormat: PARQUET
-    {{/regex-match}}
+      // Parquet
+      {{#eq @fileExt '.parquet'}}
+        sourceFormat: PARQUET
+      {{/eq}}
 
-    // ORC
-    {{#regex-match file.name "\.orc$" }}
-      sourceFormat: ORC
-    {{/regex-match}}
+      // ORC
+      {{#eq @fileExt '.orc'}}
+        sourceFormat: ORC
+      {{/eq}}
   }
 }
+{{/frame}}
