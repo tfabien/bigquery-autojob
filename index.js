@@ -7,11 +7,13 @@ const Bucket = require('./modules/gcs-bucket');
 const exclude_pattern = '@(mappings|archive)/**/*.*';
 const autoload = new BigQueryAutoload();
 
-exports['bigquery-autoload'] = (file, context) => {
+exports['bigquery-autoload'] = async (file, context) => {
     console.info("Found new file: gs://" + file.bucket + "/" + file.name);
     const matcher = micromatch.matcher(exclude_pattern);
     if (matcher(file.name)) {
-        const job = autoload.load(file, context);
+        console.info('File matches exclude pattern ("' + exclude_pattern + '"), ignoring...');
+    } else {
+        const job = await autoload.load(file, context);
         job.on('error', (err) => {
             console.error('Job completed with an error: ' + JSON.stringify(err, null, 2));
         });
@@ -21,7 +23,5 @@ exports['bigquery-autoload'] = (file, context) => {
             console.info(dot.dot({ bigquery: metadata }));
         });
 
-    } else {
-        console.info('File excluded');
     }
 };
