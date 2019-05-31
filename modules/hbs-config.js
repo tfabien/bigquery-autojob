@@ -46,14 +46,19 @@ Config.prototype._init = function () {
 // Render a template and parse result as json
 Config.prototype._runTemplate = function (template, parameters) {
   const document = template(parameters);
-  const json = hjson.parse(document);
-  return dot.object(json);
+  try {
+    const json = hjson.parse(document);
+    return dot.object(json);
+  } catch (e) {
+    console.error('Error while parsing HJSON document: %s', document);
+    throw e;
+  }
 }
 
 // Register a template
-Config.prototype._registerTemplate = function (document) {
+Config.prototype._registerTemplate = function (name, document) {
   const template = handlebars.compile(document, { noEscape: true });
-  this._templates.push(template);
+  this._templates.push({ name: name, template: template });
 }
 
 // ---------------------
@@ -66,41 +71,36 @@ Config.prototype.clear = function () {
 };
 
 // Load a template (direct)
-Config.prototype.load = function (...documents) {
-  const that = this;
-  _.each(documents, function (document) {
-    that._registerTemplate(document);
-  });
+Config.prototype.load = function (name, document) {
+  console.debug('Loading ' + name);
+  this._registerTemplate(name, document);
 }
 
 // Load a template (from file)
-Config.prototype.loadFile = function (...filePaths) {
+Config.prototype.loadFile = async function (...filePaths) {
   for (const filePath of filePaths) {
     const document = fs.readFileSync(filePath, 'UTF-8');
-    this.load(document);
+    this.load(filePath, document);
   }
 }
 
 // Load a template (read from stream)
-Config.prototype.loadStream = function (...streams) {
+Config.prototype.loadStream = async function (name, stream) {
   const that = this;
-  const loadStreamSync = async (streams) => {
-    for (const stream of streams) {
-      const document = await getStream(stream);
-      that.load(document);
-    }
-  }
-  loadStreamSync(streams);
+  return _.attempt(async () => {
+    const document = await getStream(stream);
+    that.load(name, document);
+  });
 };
 
 // Render templates with parameters and merge json results
 Config.prototype.compute = function (parameters) {
   const that = this;
   return _.reduce(this._templates, (result, template) => {
-    const it = that._runTemplate(template, parameters);
-    console.debug('Merging configuration:')
+    console.debug('Merging configuration from ' + template.name);
+    const it = that._runTemplate(template.template, parameters);
     console.debug(JSON.stringify(it, null, 2));
-    console.debug('- - -')
+    console.debug('---');
     return extend(true, result, it);
   }, null);
 };

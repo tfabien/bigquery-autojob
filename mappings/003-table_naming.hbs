@@ -1,9 +1,10 @@
 // Table naming patterns
 // Note: if multiple rules match, the last value for an option overrides all preceding ones
-{
-  // Inline partial that defines the complete filepath
-  {{#assign 'filePath'}}gs://{{file.bucket}}/{{file.name}}{{/assign}}
 
+// Helper
+{{#* inline "cleanId"}}{{snakecase value}}{{/inline}}
+
+{
   /**
    * Use the filename minus the extension and date/number suffix as table name
    * Default datasetId is used unles overriden by another config
@@ -17,8 +18,8 @@
    *     - gs://bq-autoload/cities.20190516.063000.csv
    *     - gs://bq-autoload/CSV/cities_20190516
   **/
-  {{#regex-match filePath '^gs\:\/\/.*\/(?<TABLE_ID>.*?)(?:[\.\-_][\d\.\-\_]+)?(?:\..+)?$'}}
-    configuration.load.destinationTable.tableId: "{{TABLE_ID}}"
+  {{#regex-match (last (split file.name '/') ) '(?<TABLE_ID>.*?)[\d\.\-\_]*\..+$'}}
+    configuration.load.destinationTable.tableId: "{{> cleanId value=TABLE_ID }}"
   {{/regex-match}}
 
   /**
@@ -36,8 +37,8 @@
    *     - gs://bq-autoload/Cities/export_20190516.csv
    *     - gs://bq-autoload/Staging/Cities/CSV/export_20190516.csvdirectory
   **/
-  {{#regex-match filePath '^gs\:\/\/[^\/]+\/(?<DATASET_ID>[^\/]+)\/(?<TABLE_ID>[^\/]+)\/([\d\.\_\-]+\/)?[^\/]+$'}}
-    configuration.load.destinationTable.datasetId: "{{DATASET_ID}}"
-    configuration.load.destinationTable.tableId: "{{TABLE_ID}}"
-  {{/regex-match}}
+  {{#or (isMatch file.name "*/*/*.*") }}
+      configuration.load.destinationTable.datasetId: '{{> cleanId value=(segments file.name 0 1) }}'
+      configuration.load.destinationTable.tableId: '{{> cleanId value=(segments file.name 1 2) }}'
+  {{/or}}
 }

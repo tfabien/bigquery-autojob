@@ -1,12 +1,13 @@
 const _ = require('lodash');
 const glob = require('glob');
 
-const Config = require('../hbs-config');
+const Config = require('../modules/hbs-config');
 
 const context = {
     file: {
         bucket: 'mybucket',
-        name: 'cities_20190507.csv'
+        name: 'Staging/Cities of the World/cities_20190507.js'
+        //name: 'cities_20190507.js'
     },
     env: {
         PROJECT_ID: 'myproject',
@@ -14,8 +15,8 @@ const context = {
     }
 };
 
-const mappings = new Config('mappings');
-_.each(glob.sync("./mappings/**/*.hbs"), function (file) {
+const mappings = new Config();
+_.each(glob.sync(__dirname + "/../test/mappings/**/*.hbs"), function (file) {
     console.log(file);
     mappings.loadFile(file);
 });
