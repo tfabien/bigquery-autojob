@@ -3,7 +3,7 @@
   "dependencies": {
     "@google-cloud/bigquery": "3.0.0",
     "@google-cloud/storage": "2.5.0",
-    "dot-object": "1.7.1",
+    "dot-object": "1.8.1",
     "extend": "3.0.2",
     "get-stream": "5.1.0",
     "handlebars": "4.1.2",
