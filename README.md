@@ -1,6 +1,6 @@
 # bigquery-autojob
 
-# Documentation is deprecated, syncing up...
+> Note: Documentation is currently not in sync with the rewrite, updating soon...
 
 A Google Cloud Function providing a **simple and configurable** way to automatically load data  from GCS files into Big Query tables.
 
