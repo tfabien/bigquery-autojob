@@ -1,0 +1,41 @@
+// --------------------------
+// Table and Dataset naming
+// --------------------------
+{
+    /**
+     * Use the filename minus the extension and date/number suffix as table name
+     * Default datasetId is used unles overriden by another config
+     * 
+     * eg: All these files result in a 'cities' tableId
+     *     - gs://bq-autoload/cities.csv
+     *     - gs://bq-autoload/cities-us.csv
+     *     - gs://bq-autoload/cities_1.csv
+     *     - gs://bq-autoload/cities_20190516.csv
+     *     - gs://bq-autoload/cities_20190516-063000.csv
+     *     - gs://bq-autoload/cities.20190516.063000.csv
+     *     - gs://bq-autoload/CSV/cities_20190516
+    **/
+    {{#regex-match (last (split event.name '/') ) '(?<TABLE_ID>.*?)[\d\.\-\_]*\..+$'}}
+        configuration.load.destinationTable.tableId: "{{TABLE_ID}}"
+    {{/regex-match}}
+
+    /**
+     * Use the first subdir as datasetId, and second subdir as tableId.
+     * The file must be nested under two directories
+     * A third nesting directory is accepted if this directory is a date/timestamp
+     * 
+     * eg: All these files result in a 'Cities' tableId
+     *     - gs://bq-autoload/Staging/Cities/export_20190516.csv
+     *     - gs://bq-autoload/Staging/Cities/dump_20190516.csv
+     *     - gs://bq-autoload/Staging/Cities/20190516/export.csv
+     *     - gs://bq-autoload/Staging/Cities/20190516-063000/export.csv
+     * 
+     * eg: These files will not match this pattern (and fall back to previous config)
+     *     - gs://bq-autoload/Cities/export_20190516.csv
+     *     - gs://bq-autoload/Staging/Cities/CSV/export_20190516.csvdirectory
+    **/
+    {{#or (isMatch event.name "*/*/*.*") }}
+        configuration.load.destinationTable.datasetId: '{{segments event.name 0 1}}'
+        configuration.load.destinationTable.tableId: '{{segments event.name 1 2}}'
+    {{/or}}
+}

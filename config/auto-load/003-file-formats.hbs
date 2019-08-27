@@ -1,0 +1,35 @@
+// --------------------------
+// File formats
+// --------------------------
+
+{{#frame fileExt=(lowercase (extname event.name))}}
+{
+    // CSV
+    {{#eq @fileExt '.csv'}}
+    configuration.load.sourceFormat: CSV
+    configuration.load.autodetect: True
+    {{/eq}}
+
+    // JSON
+    {{#or (eq @fileExt '.js') (eq @fileExt '.json')}}
+    configuration.load.sourceFormat: NEWLINE_DELIMITED_JSON
+    configuration.load.autodetect: True
+    {{/or}}
+
+    // Avro
+    {{#eq @fileExt '.avro'}}
+    configuration.load.sourceFormat: AVRO
+    configuration.load.useAvroLogicalTypes: True
+    {{/eq}}
+
+    // Parquet
+    {{#eq @fileExt '.parquet'}}
+    configuration.load.sourceFormat: PARQUET
+    {{/eq}}
+
+    // ORC
+    {{#eq @fileExt '.orc'}}
+    configuration.load.sourceFormat: ORC
+    {{/eq}}
+}
+{{/frame}}

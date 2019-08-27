@@ -1,0 +1,15 @@
+// --------------------------
+// Source URIs
+// --------------------------
+
+// Defines the complete filepath
+{{#frame filePath=(concat 'gs://' event.bucket '/' event.name)}}
+    // Include only files matching INCLUDE_PATTERN env
+    {{#or (isMatch @filePath (default env.INCLUDE_PATTERN "**/*"))}}
+        // Exclude files matching EXCLUDE_PATTERN env
+        {{#not (isMatch @filePath (default env.EXCLUDE_PATTERN ""))}}
+            // Use the complete file path as a sourceUri
+            configuration.load.sourceUris: [ "{{@filePath}}" ]
+        {{/not}}
+    {{/or}}
+{{/frame}}

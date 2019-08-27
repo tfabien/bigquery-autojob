@@ -1,16 +1,37 @@
 {
-  "main": "index.js",
+  "name": "typescript-functions",
+  "description": "TypeScript sample Cloud Functions for Firebase",
   "dependencies": {
-    "@google-cloud/bigquery": "3.0.0",
-    "@google-cloud/storage": "3.2.0",
-    "dot-object": "1.7.1",
-    "extend": "3.0.2",
-    "get-stream": "5.1.0",
-    "handlebars": "4.1.2",
-    "handlebars-helpers": "0.10.0",
-    "handlebars-wax": "6.1.0",
-    "hjson": "3.1.2",
-    "lodash": "4.17.13",
-    "micromatch": "4.0.1"
-  }
+    "@google-cloud/bigquery": "^4.1.8",
+    "@google-cloud/storage": "^3.2.0",
+    "dot-object": "^1.7.1",
+    "properties": "^1.2.1",
+    "get-stream": "^5.1.0",
+    "handlebars": "^4.1.2",
+    "handlebars-helpers": "^0.10.0",
+    "handlebars-wax": "^6.1.0",
+    "hjson": "^3.1.2",
+    "lodash": "^4.17.11",
+    "micromatch": "^4.0.1",
+    "glob": "^7.1.4"
+  },
+  "devDependencies": {
+    "typescript": "^3.5.1",
+    "tslint": "^5.8.0",
+    "ts-node": "^8.3.0",
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.7",
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4"
+  },
+  "scripts": {
+    "lint": "./node_modules/.bin/tslint -p tsconfig.json",
+    "build": "./node_modules/.bin/tsc --build tsconfig.json",
+    "deploy": "gcloud functions deploy bigquery-autojob --entry-point autoload --project dev-confo --trigger-bucket bigquery-autojob-test --set-env-vars PROJECT_ID=dev-confo --runtime nodejs10  --memory 128MB --region=europe-west1",
+    "test": "mocha -r ts-node/register tests/**/*.test.ts"
+  },
+  "engines": {
+    "node": "10"
+  },
+  "main": "lib/index.js"
 }

@@ -1,7 +1,0 @@
-{
-  // Inline partial that defines the complete filepath
-  {{#* inline "filePath"}}gs://{{file.bucket}}/{{file.name}}{{/inline}}
-
-  // Always use the complete file path as a sourceUri
-  configuration.load.sourceUris: [ "{{> filePath}}" ]
-}
