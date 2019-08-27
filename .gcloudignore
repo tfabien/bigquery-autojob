@@ -12,9 +12,14 @@
 # below:
 .git
 .gitignore
+.DS_Store
 .vscode
+
 node_modules
-test
+
+src
+tests
 samples
-package-lock.json
-README.md
+tsconfig.json
+tslint.json
+.eslintrc.json

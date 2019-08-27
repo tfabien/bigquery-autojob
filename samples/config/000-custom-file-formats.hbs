@@ -1,0 +1,14 @@
+// --------------------------
+// Custom file formats
+// --------------------------
+
+{{#frame fileExt=(lowercase (extname event.name))}}
+{
+    // DAT
+    {{#eq @fileExt '.dat'}}
+    configuration.load.sourceFormat: CSV
+    configuration.load.autodetect: True
+    configuration.load.fieldDelimiter: '|'
+    {{/eq}}
+}
+{{/frame}}
