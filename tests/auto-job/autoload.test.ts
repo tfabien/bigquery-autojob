@@ -23,6 +23,6 @@ process.env.PROJECT_ID = 'dev-confo'
 process.env.DATASET_ID = 'Test';
 process.env.DRY_RUN = 'false';
 
-autoload(event, context, { postActions: { archiveFile: false } })
+autoload(event, context, { postActions: { archive: { use: false } } })
     .then(() => console.log('Test completed successfully'))
     .catch(e => console.log('Test completed with error %s', e))

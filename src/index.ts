@@ -26,9 +26,8 @@ export async function autoload(event: StorageMessage, context: StorageEvent, job
             }
         },
         postActions: {
-            saveToMetadata: true,
-            archiveFile: true,
-            archiveDir: 'ARCHIVE'
+            saveToMetadata: { use: true, prefix: 'autoload' },
+            archive: { use: true }
         }
     };
     const _jobOptions = _.merge({}, defaultJobOptions, jobOptions);
@@ -41,10 +40,12 @@ export async function autoload(event: StorageMessage, context: StorageEvent, job
         })
         .then(async completedJob => {
             // Save result to metadata
-            if (_jobOptions.postActions && _jobOptions.postActions.saveToMetadata) {
+            const postActionOptions = _jobOptions.postActions && _jobOptions.postActions.saveToMetadata ? _jobOptions.postActions.saveToMetadata : null;
+            if (postActionOptions && postActionOptions.use) {
                 console.log('Saving job result to file metadata');
                 const bucket: GCSBucket = new GCSBucket(event.bucket);
-                await bucket.setCustomMetadata(event.name, dot.dot(completedJob));
+                var metadata = postActionOptions.prefix ? { [postActionOptions.prefix]: completedJob } : completedJob;
+                await bucket.setCustomMetadata(event.name, dot.dot(metadata));
             }
             return completedJob;
         })
