@@ -1,3 +1,4 @@
+# Deprecated, use master branch aof bigquery-autojob
 
 # bigquery-autoload
 
