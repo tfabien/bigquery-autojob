@@ -11,6 +11,6 @@
     "handlebars-wax": "6.1.0",
     "hjson": "3.1.2",
     "lodash": "4.17.13",
-    "micromatch": "4.0.1"
+    "micromatch": "4.0.2"
   }
 }
