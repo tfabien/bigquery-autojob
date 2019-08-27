@@ -51,10 +51,10 @@ export async function autoload(event: StorageMessage, context: StorageEvent, job
         })
         .then(async completedJob => {
             // Archive file
-            if (_jobOptions.postActions && _jobOptions.postActions.archiveFile && _jobOptions.postActions.archiveDir) {
-                console.log('Archiving file to ' + _jobOptions.postActions.archiveDir);
+            const postActionOptions = _jobOptions.postActions && _jobOptions.postActions.archive ? _jobOptions.postActions.archive : null;
+            if (postActionOptions && postActionOptions.use) {
                 const bucket = new GCSBucket(event.bucket);
-                await bucket.archive(event.name, _jobOptions.postActions.archiveDir)
+                await bucket.archive(event.name, postActionOptions.bucket, postActionOptions.directory)
             }
             return completedJob;
         });

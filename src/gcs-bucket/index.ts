@@ -7,10 +7,14 @@ import { readFileSync } from 'fs';
 import getStream from 'get-stream';
 
 export default class GCSBucket {
-    private bucket: Bucket;
+    private readonly bucket: Bucket;
+    private readonly storageOptions?: StorageOptions;
+
+    public readonly name: string;
 
     constructor(bucketName: string, storageOptions?: StorageOptions) {
         this.bucket = new Storage(storageOptions).bucket(bucketName);
+        this.name = bucketName;
     }
 
     /**
@@ -30,9 +34,9 @@ export default class GCSBucket {
         return getStream(file.createReadStream());
     }
 
-     /**
-     * Read bucket's files
-     */
+    /**
+    * Read bucket's files
+    */
     public async exists(filePath: string): Promise<boolean> {
         const file: File = this.bucket.file(filePath);
         return file.exists().then((r) => r[0])
@@ -41,15 +45,18 @@ export default class GCSBucket {
     /** 
      * Archive a file in archives directory
      */
-    public async archive(filePath: string, archiveDir: string): Promise<MoveResponse> {
-        let fileName = path.basename(filePath);
-        const fileExists = await this.bucket.file(filePath).exists();
-        if (fileExists) {
-            const newfileName = fileName + '.' + _.now();
-            console.warn(fileName + ' already exists, renaming to ' + newfileName);
-            fileName = newfileName;
+    public async archive(sourceFilePath: string, destBucketName: string, destDir: string): Promise<MoveResponse> {
+        const destBucket: GCSBucket = destBucketName == null || destBucketName == this.bucket.name ? this : new GCSBucket(destBucketName, this.storageOptions)
+        let destFilePath: string = destDir ? destDir + '/' + sourceFilePath : sourceFilePath
+        const destFileExists: boolean = await destBucket.exists(destFilePath);
+        if (destFileExists) {
+            const newDestFilePath: string = destFilePath + '.' + _.now();
+            console.warn(destFilePath + ' already exists, renaming to ' + newDestFilePath);
+            destFilePath = newDestFilePath;
         }
-        return this.bucket.file(filePath).move(archiveDir + '/' + fileName);
+        const destUri: string = 'gs://' + destBucket.name + '/' + destFilePath;
+        console.log('Archiving file to ' + destUri);
+        return this.bucket.file(sourceFilePath).move(destUri);
     }
 
     /**
