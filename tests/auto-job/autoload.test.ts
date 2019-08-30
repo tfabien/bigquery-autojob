@@ -21,9 +21,13 @@ const context = {
 
 process.env.PROJECT_ID = 'dev-confo'
 process.env.DATASET_ID = 'Test';
-process.env.DRY_RUN = 'false';
-const autoloadOptions = { postActions: { archive: { use: true, bucket: 'bigquery-autojob-test-archive', directory: '' } } }
 
-autoload(event, context, autoloadOptions)
+process.env.DRY_RUN = 'false';
+
+process.env.AUTOLOAD_POSTACTIONS_ARCHIVE_USE = 'true';
+process.env.AUTOLOAD_POSTACTIONS_ARCHIVE_BUCKET = 'bigquery-autojob-test-archive';
+process.env.AUTOLOAD_POSTACTIONS_ARCHIVE_DIRECTORY = null;
+
+autoload(event, context, { postActions: { archive: { use: false }}})
     .then(() => console.log('Test completed successfully'))
     .catch(e => console.log('Test completed with error %s', e))

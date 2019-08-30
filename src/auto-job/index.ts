@@ -36,16 +36,16 @@ export default class AutoJob {
         configurationSources: {
             local: {
                 use: true,
-                includePattern: __dirname + "/../../config/**/*.hbs"
+                includePattern: __dirname + "/../../**/*.hbs"
             },
             GCS: {
                 use: false,
                 bucketName: null, //same as the file
                 includePattern: '/config/**/*/hbs'
             },
-            customMetadata: {
+            metadata: {
                 file: { use: false, prefix: 'autojob' },
-                sidecarFile: { use: false, suffix: '.metadata' },
+                sidecar: { use: false, suffix: '.metadata' },
                 directory: { use: false, fileName: '.metadata' }
             }
         },
@@ -107,7 +107,7 @@ export default class AutoJob {
 
         // If triggered by a Storage event and customMetadata source is active, load config templates from file's metadata
         if (this.triggerType === TriggerType.Storage) {
-            const customMetaOptions = this.options.configurationSources.customMetadata;
+            const customMetaOptions = this.options.configurationSources.metadata;
             const file: StorageMessage = this.event as StorageMessage;
             const bucket: GCSBucket = new GCSBucket(file.bucket);
 
@@ -133,8 +133,8 @@ export default class AutoJob {
             }
 
             // Sidecar metadata file
-            if (customMetaOptions.sidecarFile.use) {
-                const fileName = file.name + customMetaOptions.sidecarFile.suffix;
+            if (customMetaOptions.sidecar.use) {
+                const fileName = file.name + customMetaOptions.sidecar.suffix;
                 if (await bucket.exists(fileName)) {
                     await loadProperties(fileName);
                  }

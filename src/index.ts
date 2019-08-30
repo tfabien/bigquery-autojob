@@ -12,26 +12,20 @@ import { Options } from "./auto-job/options";
 import { TriggerType } from './auto-job/trigger-type';
 
 import GCSBucket from './gcs-bucket';
+import HBSConfig from './hbs-config/index';
 
 
-export async function autoload(event: StorageMessage, context: StorageEvent, jobOptions?: Options): Promise<Job> {
-    const defaultJobOptions: Options = {
-        configurationSources: {
-            local: { use: true },
-            GCS: { use: true, getFilesOptions: { prefix: 'mappings/' } },
-            customMetadata: {
-                file: { use: true, prefix: 'autoload' },
-                sidecarFile: { use: true },
-                directory: { use: true }
-            }
-        },
-        postActions: {
-            saveToMetadata: { use: true, prefix: 'autoload' },
-            archive: { use: true }
-        }
-    };
-    const _jobOptions = _.merge({}, defaultJobOptions, jobOptions);
+export async function autoload(event: StorageMessage, context: StorageEvent, jobOptions ?: Options): Promise<Job> {
+    // COmpute job options
+    const jobConfig: HBSConfig = new HBSConfig();
+    jobConfig.loadFile(__dirname + '/../config/auto-load/job-config.hbs')
+    const _jobOptions = _.merge({}, await jobConfig.apply({ env: process.env }), jobOptions);
+    console.log(JSON.stringify(_jobOptions, null, 2));
+
+    // Create job
     const job = await AutoJob.create(TriggerType.Storage, event, context, _jobOptions);
+    
+    // Run
     return job.run()
         .then(async completedJob => {
             // Log success

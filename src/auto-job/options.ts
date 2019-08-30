@@ -14,6 +14,10 @@ export interface Options {
              */
             use?: boolean,
             /**
+             * Base directory contaiing the hbs files
+             */
+            baseDir?: string,
+            /**
              * glob include pattern
              */
             includePattern?: string;
@@ -44,7 +48,7 @@ export interface Options {
          * Custom metadata from the triggering GCS file
          * Note: Ignored if TriggerType is not 'Storage'
          */
-        customMetadata?: {
+        metadata?: {
             /**
              * Custom metadata from the triggering GCS file
              */
@@ -62,7 +66,7 @@ export interface Options {
             /**
              * Custom metadata from a file relative to the triggering GCS file
              */
-            sidecarFile?: {
+            sidecar?: {
                 use?: boolean,
                 suffix?: string
             },
