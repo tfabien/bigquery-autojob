@@ -18,7 +18,7 @@ import HBSConfig from './hbs-config/index';
 export async function autoload(event: StorageMessage, context: StorageEvent, jobOptions ?: Options): Promise<Job> {
     // COmpute job options
     const jobConfig: HBSConfig = new HBSConfig();
-    jobConfig.loadFile(__dirname + '/../config/auto-load/job-config.hbs')
+    jobConfig.loadFile(__dirname + '/../../config/auto-load/job-config.hbs')
     const _jobOptions = _.merge({}, await jobConfig.apply({ env: process.env }), jobOptions);
     console.log(JSON.stringify(_jobOptions, null, 2));
 
