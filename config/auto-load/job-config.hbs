@@ -1,0 +1,37 @@
+configurationSources: {
+    local: {
+        use: {{default env.AUTOLOAD_CONFIGURATIONSOURCES_LOCAL_USE 'true'}}
+        includePattern: "{{default env.AUTOLOAD_CONFIGURATIONSOURCES_LOCAL_INCLUDEPATTERN 'config/auto-load/**/*.hbs'}}"
+    },
+    GCS: {
+        use: {{default env.AUTOLOAD_CONFIGURATIONSOURCES_GCS_USE 'true'}}
+        bucketName: {{default env.AUTOLOAD_CONFIGURATIONSOURCES_GCS_BUCKET_NAME 'null'}}
+        includePattern: "{{default env.AUTOLOAD_CONFIGURATIONSOURCES_GCS_INCLUDEPATTERN '/config/**/*/hbs'}}"
+    },
+    metadata: {
+        file: {
+            use: {{default env.AUTOLOAD_CONFIGURATIONSOURCES_METADATA_FILE_USE 'true'}}
+            prefix: {{default env.AUTOLOAD_CONFIGURATIONSOURCES_METADATA_FILEPREFIX 'autoload'}}
+        },
+        sidecar: {
+            use: {{default env.AUTOLOAD_CONFIGURATIONSOURCES_METADATA_SIDECAR_USE 'true'}}
+            suffix: {{default env.AUTOLOAD_CONFIGURATIONSOURCES_METADATA_SIDECAR_SUFFIX '.metadata'}}
+        },
+        directory: {
+            use: {{default env.AUTOLOAD_CONFIGURATIONSOURCES_METADATA_DIRECTORY_USE 'true'}}
+            fileName: {{default env.AUTOLOAD_CONFIGURATIONSOURCES_METADATA_DIRECTORY_FILENAME '.metadata'}}
+        }
+    }
+},
+userContext: {{default env.AUTOLOAD_USERCONTEXT '{}'}}
+postActions: {
+    saveToMetadata: {
+        use: {{default env.AUTOLOAD_POSTACTIONS_SAVEMETADATA_USE 'true'}}
+        prefix: {{default env.AUTOLOAD_POSTACTIONS_SAVEMETADATA_PREFIX 'autojob'}}
+    },
+    archive: {
+        use: {{default env.AUTOLOAD_POSTACTIONS_ARCHIVE_USE 'true'}}
+        bucket: {{default env.AUTOLOAD_POSTACTIONS_ARCHIVE_BUCKET 'null'}}
+        directory: {{default env.AUTOLOAD_POSTACTIONS_ARCHIVE_DIRECTORY 'archive'}}
+    }
+}
