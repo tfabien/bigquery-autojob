@@ -14,12 +14,5 @@
 .gitignore
 .DS_Store
 .vscode
-
 node_modules
-
-src
-tests
 samples
-tsconfig.json
-tslint.json
-.eslintrc.json
