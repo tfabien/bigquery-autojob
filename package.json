@@ -7,7 +7,7 @@
     "dot-object": "1.7.1",
     "properties": "1.2.1",
     "get-stream": "5.1.0",
-    "handlebars": "4.2.0",
+    "handlebars": "4.4.3",
     "handlebars-helpers": "0.10.0",
     "handlebars-wax": "6.1.0",
     "hjson": "3.1.2",
