@@ -2,7 +2,7 @@
   "name": "typescript-functions",
   "description": "TypeScript sample Cloud Functions for Firebase",
   "dependencies": {
-    "@google-cloud/bigquery": "4.1.8",
+    "@google-cloud/bigquery": "5.2.0",
     "@google-cloud/storage": "3.2.1",
     "dot-object": "1.7.1",
     "properties": "1.2.1",
