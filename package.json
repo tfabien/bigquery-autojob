@@ -3,7 +3,7 @@
   "description": "TypeScript sample Cloud Functions for Firebase",
   "dependencies": {
     "@google-cloud/bigquery": "4.1.8",
-    "@google-cloud/storage": "3.2.1",
+    "@google-cloud/storage": "5.7.0",
     "dot-object": "1.7.1",
     "properties": "1.2.1",
     "get-stream": "5.1.0",
