@@ -11,7 +11,7 @@
     {{/eq}}
 
     // JSON
-    {{#or (eq @fileExt '.js') (eq @fileExt '.json')}}
+    {{#or (eq @fileExt '.js') (eq @fileExt '.json') (eq @fileExt '.jsonl')}}
     configuration.load.sourceFormat: NEWLINE_DELIMITED_JSON
     configuration.load.autodetect: True
     {{/or}}
