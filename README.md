@@ -28,11 +28,16 @@ If the default behaviour does not suit your needs, it can be modified for all or
   ```bash
   $> git clone "https://github.com/tfabien/bigquery-autoload/"              \
      && cd "bigquery-autoload"                                              \
-     && gcloud functions deploy "bigquery-autoload"                         \
-                      --trigger-bucket "bq-autoload"                        \
-                      --set-env-vars "PROJECT_ID={{YOUR_GCP_PROJECT_ID}}"   \
-                      --runtime "nodejs10"                                  \
-                      --memory "128MB"
+     && npm install -g typescript                                           \
+     && npm install                                                         \
+     && npm build                                                           \
+     && gcloud functions deploy "bq-autoload"                               \
+            --entry-point autoload                                          \
+            --trigger-bucket "bq-autoload"                                  \
+            --set-env-vars "PROJECT_ID={{YOUR_GCP_PROJECT_ID}}"             \
+            --runtime "nodejs10"                                            \
+            --memory "128MB"                                                \
+            --region europe-west1
   ```
   
 That's it :+1:
