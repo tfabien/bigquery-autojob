@@ -4,7 +4,7 @@
   "dependencies": {
     "@google-cloud/bigquery": "5.6.0",
     "@google-cloud/storage": "5.8.5",
-    "dot-object": "1.7.1",
+    "dot-object": "2.1.4",
     "properties": "1.2.1",
     "get-stream": "5.1.0",
     "handlebars": "4.7.7",
